@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">خودحساب</string>
+    <string name="add"> افزودن </string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_home">خرج\u200cکرد</string>
+    <string name="title_dashboard">محاسبه</string>
+    <string name="title_notifications">بیشتر :)</string>
+    <string name="ha">هزینه</string>
+    <string name="about">توضیحات</string>
+    <string name="te">افرادی که در این خرید سهیم اند:</string>
+    <string name="bay">افزودن‌خرید</string>
+</resources>

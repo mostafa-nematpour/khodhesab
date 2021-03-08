@@ -1,0 +1,20 @@
+<resources xmlns:ns2="http://schemas.android.com/tools">
+
+    <style name="MyMaterialTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorHighlightInverse">@color/textColorHighlightInverse</item>
+        <item name="actionMenuTextColor">@color/colorPrimaryDark</item>
+
+        <item name="buttonStyle">@style/MyButton</item>
+        <item name="fontFamily">@font/vazir_bold</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="textAppearanceButton">@style/AppTextAppearance.Button</item>'
+        <item name="floatingActionButtonStyle">@style/FloatingActionButton</item>
+        <item name="extendedFloatingActionButtonStyle">@style/ExtendedFloatingActionButton</item>
+        <item name="bottomNavigationStyle">@style/b_nav</item>
+    </style>
+
+</resources>

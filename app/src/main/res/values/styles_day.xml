@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTextAppearance.Button" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+
+    <style name="MyButton" parent="Theme.AppCompat.Light">
+        <item name="colorControlHighlight">@color/colorAccent</item>
+        <item name="colorButtonNormal">#263238</item>
+    </style>
+
+    <style name="FloatingActionButton" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="backgroundTint">#43A047</item>
+        <item name="tint">@color/waite</item>
+    </style>
+
+    <style name="FloatingActionButton2" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="backgroundTint">@color/blue</item>
+        <item name="tint">@color/waite</item>
+    </style>
+
+    <style name="ExtendedFloatingActionButton" parent="Widget.MaterialComponents.ExtendedFloatingActionButton">
+        <item name="backgroundTint">@color/blue</item>
+        <item name="iconTint">@color/waite</item>
+        <item name="android:textColor">@color/waite</item>
+        <item name="android:layoutDirection">ltr</item>
+        <item name="android:gravity">start|center_vertical</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+    </style>
+
+    <style name="TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="colorPrimary">#0DA960</item>
+        <item name="boxStrokeColor">#939393</item>
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="colorAccent">@color/black</item>
+        <item name="boxCornerRadiusBottomEnd">15dp</item>
+        <item name="boxCornerRadiusBottomStart">15dp</item>
+        <item name="boxCornerRadiusTopEnd">15dp</item>
+        <item name="boxCornerRadiusTopStart">15dp</item>
+        <item name="android:textColorHint">#0DA960</item>
+    </style>
+
+    <style name="b_nav" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="itemIconTint">@color/nav_color</item>
+        <item name="android:textColor">@color/nav_color</item>
+    </style>
+
+
+    <style name="ButtonStyle" parent="Theme.AppCompat.DayNight">
+        <item name="colorPrimary">#52673AB7</item>
+        <item name="android:textSize">19dp</item>
+        <item name="android:layout_margin">8dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textColor">#3F51B5</item>
+        <item name="background">@drawable/custom_button_result</item>
+        <item name="android:background">#009688</item>
+    </style>
+
+</resources>
