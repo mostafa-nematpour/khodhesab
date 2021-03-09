@@ -6,7 +6,6 @@ data class Spent(
     val buyerId: Int,
     val money: Int,
     var list: MutableList<Person>?,
-    val date: String,
     val time: String,
     val about: String
 ) {

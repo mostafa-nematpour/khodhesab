@@ -12,36 +12,37 @@ import ir.mostafa.nematpour.khodhesab.model.Spent
 
 class DataBaseManager(
     context: Context?,
-    name: String? = "Database.db",
+    name: String? = "khodHesab.db",
     factory: SQLiteDatabase.CursorFactory? = null,
     version: Int = 1
 ) : SQLiteOpenHelper(context, name, factory, version) {
 
-    private val tableName = "firstList"
-    private val dID = "id"
-    private val dName = "name"
-    private val dMoney = "money"
-    private val dImageLink = "imageLink"
-
-    private val tableSpent = "SpentList"
-    private val dPersonIdSpent = "personId"
-    private val dTime = "time"
-    private val dDate = "date"
-    private val dAbout = "about"
-
+    private val personsTable = "Persons"
+    private val personId = "id_person"
+    private val personName = "name"
+    private val personMoney = "money"
+    private val personImageLink = "imageLink"
+    /**/
+    private val spentTable = "Spent"
+    private val spentId = "id_spent"
+    /**/
+    private val time = "Timestamp"
+    private val about = "about"
+    /**/
     private val tableListOfParts = "SpentListOfParts"
-    private val dPersonId = "personId"
     private val dSpentId = "spentId"
+
     override fun onCreate(db: SQLiteDatabase?) {
-        val cQuery =
-            "CREATE TABLE $tableName ( $dID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, $dName VARCHAR, $dMoney INTEGER, $dImageLink TEXT);"
-        val cQuery2 =
-            "CREATE TABLE $tableSpent ( $dID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, $dPersonIdSpent INTEGER, $dMoney INTEGER, $dDate VARCHAR, $dTime VARCHAR, $dAbout TEXT);"
+        val persons =
+            "CREATE TABLE $personsTable ( $personId INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, $personName VARCHAR(30), $personMoney INTEGER, $personImageLink VARCHAR(60));"
+        val spent =
+            "CREATE TABLE $spentTable ( $spentId INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, $personId INTEGER, $personMoney INTEGER, $time INTEGER, $about TEXT);"
         val cQuery3 =
-            "CREATE TABLE $tableListOfParts ( $dID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, $dSpentId INTEGER, $dPersonId INTEGER );"
-        db?.execSQL(cQuery)
-        db?.execSQL(cQuery2)
+            "CREATE TABLE $tableListOfParts ( $spentId INTEGER, $personId INTEGER );"
+        db?.execSQL(persons)
+        db?.execSQL(spent)
         db?.execSQL(cQuery3)
+
         Log.d("db", "onCreate")
     }
 
@@ -52,7 +53,7 @@ class DataBaseManager(
     fun insertParts(part: Part) {
         val idb = this.writableDatabase
         val icv = ContentValues()
-        icv.put(dPersonId, part.personId)
+        icv.put(personId, part.personId)
         icv.put(dSpentId, part.spentId)
         idb.insert(tableListOfParts, null, icv)
         idb.close()
@@ -61,12 +62,11 @@ class DataBaseManager(
     fun insertSpent(spent: Spent) {
         val idb = this.writableDatabase
         val icv = ContentValues()
-        icv.put(dPersonIdSpent, spent.buyerId)
-        icv.put(dMoney, spent.money)
-        icv.put(dDate, spent.date)
-        icv.put(dTime, spent.time)
-        icv.put(dAbout, spent.about)
-        idb.insert(tableSpent, null, icv)
+        icv.put(personId, spent.buyerId)
+        icv.put(personMoney, spent.money)
+        icv.put(time, spent.time)
+        icv.put(about, spent.about)
+        idb.insert(spentTable, null, icv)
         idb.close()
     }
 
@@ -74,10 +74,10 @@ class DataBaseManager(
     fun insertPerson(person: Person) {
         val idb = this.writableDatabase
         val icv = ContentValues()
-        icv.put(dName, person.name)
-        icv.put(dMoney, person.money)
-        icv.put(dImageLink, person.imageLink)
-        idb.insert(tableName, null, icv)
+        icv.put(personName, person.name)
+        icv.put(personMoney, person.money)
+        icv.put(personImageLink, person.imageLink)
+        idb.insert(personsTable, null, icv)
         idb.close()
     }
 
@@ -108,7 +108,7 @@ class DataBaseManager(
         var gPrs: Person? = null
         val gdb = this.readableDatabase
         val gQuery =
-            "SELECT * FROM $tableName WHERE $dID=$gID"
+            "SELECT * FROM $personsTable WHERE $personId=$gID"
         val gCur: Cursor = gdb.rawQuery(gQuery, null)
         if (gCur.moveToFirst()) {
             gPrs = Person(
@@ -127,7 +127,7 @@ class DataBaseManager(
         var gPrs: Spent? = null
         val gdb = this.readableDatabase
         val gQuery =
-            "SELECT * FROM $tableSpent WHERE $dID=$gID"
+            "SELECT * FROM $spentTable WHERE $spentId=$gID"
         val cursor: Cursor = gdb.rawQuery(gQuery, null)
         if (cursor.moveToFirst()) {
             gPrs = Spent(
@@ -136,8 +136,7 @@ class DataBaseManager(
                 cursor.getString(2).toInt(),
                 this.getPartBySpentId(cursor.getString(0).toInt()),
                 cursor.getString(3),
-                cursor.getString(4),
-                cursor.getString(5)
+                cursor.getString(4)
             )
         }
         cursor.close()
@@ -149,8 +148,8 @@ class DataBaseManager(
         val items = mutableListOf<Spent>()
         val gdb = this.readableDatabase
         val cursor: Cursor = gdb.query(
-            tableSpent,
-            arrayOf(dID, dPersonIdSpent, dMoney, dDate, dTime, dAbout),
+            spentTable,
+            arrayOf(spentId, personId, personMoney,  time, about),
             null,
             null,
             null,
@@ -166,8 +165,7 @@ class DataBaseManager(
                         cursor.getString(2).toInt(),
                         null,
                         cursor.getString(3),
-                        cursor.getString(4),
-                        cursor.getString(5)
+                        cursor.getString(4)
                     )
                 items.add(spent)
             } while (cursor.moveToNext())
@@ -179,10 +177,10 @@ class DataBaseManager(
     fun getPersons(): MutableList<Person> {
         val items = mutableListOf<Person>()
         val gdb = this.readableDatabase
-//        val gQuery = "SELECT * FROM $tableName"
+//        val gQuery = "SELECT * FROM $personsTable"
         val cursor: Cursor = gdb.query(
-            tableName,
-            arrayOf(dID, dName, dMoney, dImageLink),
+            personsTable,
+            arrayOf(personId, personName, personMoney, personImageLink),
             null,
             null,
             null,
@@ -209,16 +207,15 @@ class DataBaseManager(
         if (spent.list != null && spent.list!!.size > 0) {
             val udb = this.writableDatabase
             val ucv = ContentValues()
-            ucv.put(dPersonIdSpent, spent.buyerId)
-            ucv.put(dMoney, spent.money)
-            ucv.put(dAbout, spent.about)
-            ucv.put(dTime, spent.time)
-            ucv.put(dDate, spent.date)
-            ucv.put(dAbout, spent.about)
+            ucv.put(spentId, spent.buyerId)
+            ucv.put(personMoney, spent.money)
+            ucv.put(about, spent.about)
+            ucv.put(time, spent.time)
+            ucv.put(about, spent.about)
             udb.update(
-                tableSpent,
+                this.spentTable,
                 ucv,
-                "$dID = ?",
+                "$personId = ?",
                 arrayOf(java.lang.String.valueOf(spent.id))
             )
             udb.execSQL("DELETE FROM $tableListOfParts WHERE spentId = ${spent.id}")
@@ -236,8 +233,8 @@ class DataBaseManager(
      fun deletePerson(dprs: Person): Boolean {
          val ddb = this.writableDatabase
          val dResult = ddb.delete(
-             TableName,
-             "$dID=?",
+             personsTable,
+             "$personId=?",
              arrayOf(java.lang.String.valueOf(dprs.pID))
          ).toLong()
          Log.i("Mahdi", "deletePerson Method")
@@ -245,7 +242,7 @@ class DataBaseManager(
      }*/
 
     fun personCount(): Int {
-        val gQuery = "SELECT * FROM $tableName"
+        val gQuery = "SELECT * FROM $personsTable"
         val gdb = this.readableDatabase
         val gCur: Cursor = gdb.rawQuery(gQuery, null)
         val a = gCur.count
@@ -254,10 +251,10 @@ class DataBaseManager(
     }
 
     fun deleteAll() {
-        val query = "DELETE FROM $tableName"
-        val query1 = "DELETE FROM sqlite_sequence WHERE name='$tableName'"
-        val queryS = "DELETE FROM $tableSpent"
-        val queryS1 = "DELETE FROM sqlite_sequence WHERE name='$tableSpent'"
+        val query = "DELETE FROM $personsTable"
+        val query1 = "DELETE FROM sqlite_sequence WHERE name='$personsTable'"
+        val queryS = "DELETE FROM $spentTable"
+        val queryS1 = "DELETE FROM sqlite_sequence WHERE name='$spentTable'"
 
         val gdb = this.writableDatabase
         gdb.execSQL(query)

@@ -40,7 +40,7 @@ class SpentAdapter(var items: List<Spent>, val callback: Callback) :
             name.text = item.buyerId.toString()
             name.text = callback.setBuyerName(item.buyerId)
             money.text = item.money.toString()
-            dateAndTime.text="${item.time}   ${item.date}"
+            dateAndTime.text="${item.time}   "
             if (item.money.toString().isNotEmpty()) {
                 val sdd = DecimalFormat("#,###")
                 val doubleNumber = item.money.toString().toDouble()

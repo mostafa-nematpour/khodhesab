@@ -10,7 +10,6 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -21,12 +20,11 @@ import ir.mostafa.nematpour.khodhesab.model.Part
 import ir.mostafa.nematpour.khodhesab.model.Person
 import ir.mostafa.nematpour.khodhesab.model.Spent
 import ir.mostafa.nematpour.khodhesab.ui.MyNumberWatcher
-import java.lang.Exception
+import java.sql.Timestamp;
 import java.text.DateFormat
 import java.text.DecimalFormat
-import java.text.Format
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
+import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -178,7 +176,6 @@ class AddSpentActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 spent.buyerId,
                 editTextMoney?.text.toString().replace(",","").toInt(),
                 list,
-                spent.date,
                 spent.time,
                 editTextAbout?.text.toString()
             )
@@ -209,6 +206,9 @@ class AddSpentActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 val format = SimpleDateFormat("HH:mm")
                 currentTime = format.format(calendar.time)
 
+                val timestamp = Timestamp(System.currentTimeMillis())
+                currentTime = timestamp.time.toString()
+
             } catch (e: Exception) {
             }
             if (spinnerIndex == 0) {
@@ -226,7 +226,6 @@ class AddSpentActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 spinnerIndex,
                 editTextMoney?.text.toString().replace(",", "").toInt(),
                 null,
-                currentDate,
                 currentTime,
                 editTextAbout?.text.toString()
             )
@@ -256,7 +255,7 @@ class AddSpentActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     .show()
             }
             return false
-        } catch (e: Exception) {
+        } catch (e: ExceptionInInitializerError) {
             Snackbar.make(editTextMoney!!, "مشکلی پیش آمده", Snackbar.LENGTH_LONG)
                 .show()
             return false
