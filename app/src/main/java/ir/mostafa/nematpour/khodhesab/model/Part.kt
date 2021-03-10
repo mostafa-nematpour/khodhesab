@@ -1,3 +1,3 @@
 package ir.mostafa.nematpour.khodhesab.model
 
-data class Part(val id: Int, val spentId: Int, val personId: Int)
+data class Part( val spentId: Int, val personId: Int)

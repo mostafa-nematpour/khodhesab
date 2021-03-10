@@ -6,9 +6,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import ir.mostafa.nematpour.khodhesab.model.Part
-import ir.mostafa.nematpour.khodhesab.model.Person
-import ir.mostafa.nematpour.khodhesab.model.Spent
+import ir.mostafa.nematpour.khodhesab.model.*
 
 class DataBaseManager(
     context: Context?,
@@ -17,45 +15,70 @@ class DataBaseManager(
     version: Int = 1
 ) : SQLiteOpenHelper(context, name, factory, version) {
 
+    /* personsTable */
     private val personsTable = "Persons"
     private val personId = "id_person"
     private val personName = "name"
     private val personMoney = "money"
     private val personImageLink = "imageLink"
-    /**/
+
+    /* spentTable */
     private val spentTable = "Spent"
     private val spentId = "id_spent"
+
+    /* personsInSpentTable */
+    private val personsInSpentTable = "PersonsInSpent"
+
+    /* answersTable */
+    private val answersTable = "Answers"
+    private val answerId = "id_answer"
+    private val totalExpenses = "total_expenses"
+    private val totalSpent = "total_spent"
+
+    /* answersPersonTable */
+    private val answersPersonTable = "Answers_Person"
+
+    /* creditsTable */
+    private val creditsTable = "Answers_Person_Credits"
+    private val credit = "credit"
+
     /**/
     private val time = "Timestamp"
     private val about = "about"
-    /**/
-    private val tableListOfParts = "SpentListOfParts"
-    private val dSpentId = "spentId"
 
     override fun onCreate(db: SQLiteDatabase?) {
         val persons =
             "CREATE TABLE $personsTable ( $personId INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, $personName VARCHAR(30), $personMoney INTEGER, $personImageLink VARCHAR(60));"
         val spent =
             "CREATE TABLE $spentTable ( $spentId INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, $personId INTEGER, $personMoney INTEGER, $time INTEGER, $about TEXT);"
-        val cQuery3 =
-            "CREATE TABLE $tableListOfParts ( $spentId INTEGER, $personId INTEGER );"
+        val personsInSpent =
+            "CREATE TABLE $personsInSpentTable ( $spentId INTEGER, $personId INTEGER );"
+        val answers =
+            "CREATE TABLE $answersTable ( $answerId INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, $totalExpenses INTEGER, $totalSpent INTEGER, $time INTEGER);"
+        val answersPerson =
+            "CREATE TABLE $answersPersonTable ( $answerId INTEGER, $personId INTEGER);"
+        val credits =
+            "CREATE TABLE $creditsTable ( $answerId INTEGER, $personId INTEGER, $credit INTEGER);"
+
         db?.execSQL(persons)
         db?.execSQL(spent)
-        db?.execSQL(cQuery3)
+        db?.execSQL(personsInSpent)
+        db?.execSQL(answers)
+        db?.execSQL(answersPerson)
+        db?.execSQL(credits)
 
-        Log.d("db", "onCreate")
+        Log.d("db", "onCreate:  Table Was made")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-
     }
 
     fun insertParts(part: Part) {
         val idb = this.writableDatabase
         val icv = ContentValues()
         icv.put(personId, part.personId)
-        icv.put(dSpentId, part.spentId)
-        idb.insert(tableListOfParts, null, icv)
+        icv.put(spentId, part.spentId)
+        idb.insert(personsInSpentTable, null, icv)
         idb.close()
     }
 
@@ -85,7 +108,7 @@ class DataBaseManager(
         val items = mutableListOf<Person>()
         val gdb = this.readableDatabase
         val gQuery =
-            "SELECT * FROM $tableListOfParts WHERE $dSpentId = $i"
+            "SELECT * FROM $personsInSpentTable WHERE $spentId = $i"
 
         //SELECT * FROM SpentListOfParts WHERE spentId = 4
         val cursor: Cursor = gdb.rawQuery(gQuery, null)
@@ -93,7 +116,7 @@ class DataBaseManager(
         if (cursor.moveToFirst()) {
             do {
 
-                val person = this.getPerson(cursor.getString(2))
+                val person = this.getPerson(cursor.getString(1))
                 if (person != null) {
                     items.add(person)
                 }
@@ -144,12 +167,49 @@ class DataBaseManager(
     }
 
 
+    fun insertAnswer(answer: Answer) {
+        val idb = this.writableDatabase
+        val icv = ContentValues()
+        icv.put(answerId, answer.id)
+        icv.put(totalExpenses, answer.totalExpenses)
+        icv.put(totalSpent, answer.totalSpent)
+        icv.put(time, answer.time)
+        idb.insert(answersTable, null, icv)
+        idb.close()
+        for (l in answer.palist!!) {
+            this.insertAnswerPerson(l)
+        }
+    }
+
+
+    fun insertAnswerPerson(answersPerson: AnswersPerson) {
+        val idb = this.writableDatabase
+        val icv = ContentValues()
+        icv.put(answerId, answersPerson.answerId)
+        icv.put(personId, answersPerson.personId)
+        idb.insert(answersPersonTable, null, icv)
+        idb.close()
+        for (c in answersPerson.creditlist!!) {
+                this.insertCredit(c)
+        }
+    }
+
+    fun insertCredit(credit: Credit) {
+        val idb = this.writableDatabase
+        val icv = ContentValues()
+        icv.put(answerId, credit.answerId)
+        icv.put(personId, credit.personId)
+        icv.put(this.credit, credit.credit)
+        idb.insert(creditsTable, null, icv)
+        idb.close()
+    }
+
     fun getSpents(): MutableList<Spent> {
         val items = mutableListOf<Spent>()
         val gdb = this.readableDatabase
         val cursor: Cursor = gdb.query(
             spentTable,
-            arrayOf(spentId, personId, personMoney,  time, about),
+            arrayOf(spentId, personId, personMoney, time, about),
             null,
             null,
             null,
@@ -218,11 +278,11 @@ class DataBaseManager(
                 "$personId = ?",
                 arrayOf(java.lang.String.valueOf(spent.id))
             )
-            udb.execSQL("DELETE FROM $tableListOfParts WHERE spentId = ${spent.id}")
+            udb.execSQL("DELETE FROM $personsInSpentTable WHERE $spentId = ${spent.id}")
 
             for (p in spent.list!!) {
                 if (p.flag)
-                    this.insertParts(Part(0, spent.id, p.id))
+                    this.insertParts(Part(spent.id, p.id))
             }
 
 

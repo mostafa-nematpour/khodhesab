@@ -197,15 +197,8 @@ class AddSpentActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     @SuppressLint("SimpleDateFormat")
     private fun addOk(): Boolean {
         try {
-            var currentDate = ""
             var currentTime = ""
             try {
-                val calendar = Calendar.getInstance()
-                currentDate =
-                    DateFormat.getDateInstance(DateFormat.YEAR_FIELD).format(calendar.time)
-                val format = SimpleDateFormat("HH:mm")
-                currentTime = format.format(calendar.time)
-
                 val timestamp = Timestamp(System.currentTimeMillis())
                 currentTime = timestamp.time.toString()
 
@@ -243,7 +236,7 @@ class AddSpentActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 val n = l?.last()?.id
                 for (p in list) {
                     if (p.flag)
-                        db?.insertParts(Part(0, n!!, p.id))
+                        db?.insertParts(Part( n!!, p.id))
                 }
                 return true
             } else {
@@ -255,11 +248,12 @@ class AddSpentActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     .show()
             }
             return false
-        } catch (e: ExceptionInInitializerError) {
+        } catch (e: Exception) {
             Snackbar.make(editTextMoney!!, "مشکلی پیش آمده", Snackbar.LENGTH_LONG)
                 .show()
             return false
         }
+
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
