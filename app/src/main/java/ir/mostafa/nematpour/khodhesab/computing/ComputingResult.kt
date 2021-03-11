@@ -3,11 +3,9 @@ package ir.mostafa.nematpour.khodhesab.computing
 import android.annotation.SuppressLint
 import android.content.Context
 import ir.mostafa.nematpour.khodhesab.dataBase.DataBaseManager
-import ir.mostafa.nematpour.khodhesab.model.CPerson
-import ir.mostafa.nematpour.khodhesab.model.CTable
-import ir.mostafa.nematpour.khodhesab.model.Spent
-import ir.mostafa.nematpour.khodhesab.model.Result
+import ir.mostafa.nematpour.khodhesab.model.*
 import java.lang.Exception
+import java.sql.Timestamp
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -16,7 +14,7 @@ class ComputingResult(val spentList: MutableList<Spent>, val context: Context?) 
 
 
     @SuppressLint("SimpleDateFormat")
-    fun result(): Result {
+    fun result() {
         val db = DataBaseManager(context)
         val list = db.getSpents()
         var money = 0
@@ -24,12 +22,14 @@ class ComputingResult(val spentList: MutableList<Spent>, val context: Context?) 
         var currentDate = ""
         var currentTime = ""
 
+        val answersPersons= mutableListOf<AnswersPerson>()
         val pList = mutableListOf<CPerson>()
         val persons = db.getPersons()
 
         val table = mutableListOf<CTable>()
         for (p in persons) {
             table.add(CTable(0, p.id))
+            answersPersons.add(AnswersPerson(-1,p.id,null))
         }
         for (p in persons) {
             pList.add(CPerson(p.id, table))
@@ -39,7 +39,6 @@ class ComputingResult(val spentList: MutableList<Spent>, val context: Context?) 
 
         for (s in list) {
             //چرخش روی خرید ها
-
 
             money += s.money
             number++
@@ -69,7 +68,7 @@ class ComputingResult(val spentList: MutableList<Spent>, val context: Context?) 
                 }
             }
             currentDate += "\n\n" + db.getPerson(s.buyerId.toString())?.name + "\n\n" +
-                    s.money + "\n\n" + pList.toString() + "\n\n" + spent?.list!! + "\n\n" +pList
+                    s.money + "\n\n" + pList.toString() + "\n\n" + spent?.list!! + "\n\n" + pList
 
         }
 
@@ -77,16 +76,14 @@ class ComputingResult(val spentList: MutableList<Spent>, val context: Context?) 
 
 
         try {
-            val calendar = Calendar.getInstance()
-            currentDate +=
-                DateFormat.getDateInstance(DateFormat.YEAR_FIELD).format(calendar.time)
-            val format = SimpleDateFormat("HH:mm")
-            currentTime = format.format(calendar.time)
-
+            val timestamp = Timestamp(System.currentTimeMillis())
+            currentTime = timestamp.time.toString()
         } catch (e: Exception) {
         }
 
-        return Result(-1, money, number, currentTime, currentDate, "")
+
+        val answer = Answer(-1, money.toString(), number, currentTime, answersPersons)
+        db.insertAnswer(answer)
 
     }
 }

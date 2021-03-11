@@ -5,14 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ir.mostafa.nematpour.khodhesab.R
-import ir.mostafa.nematpour.khodhesab.model.Result
+import ir.mostafa.nematpour.khodhesab.model.Answer
 import java.text.DecimalFormat
 
-class ResultAdapter(private val items: List<Result>, val callback: Callback) :
+class ResultAdapter(private val items: List<Answer>, val callback: Callback) :
     RecyclerView.Adapter<ResultAdapter.MainHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResultAdapter.MainHolder =
@@ -34,16 +33,16 @@ class ResultAdapter(private val items: List<Result>, val callback: Callback) :
         private val textDateAndTime = itemView.findViewById<TextView>(R.id.textView6)
 
         @SuppressLint("SetTextI18n")
-        fun bind(item: Result, position: Int) {
+        fun bind(item: Answer, position: Int) {
 
-            if (item.totalCost.toString().isNotEmpty()) {
+            if (item.totalExpenses.toString().isNotEmpty()) {
                 val sdd = DecimalFormat("#,###")
-                val doubleNumber = item.totalCost.toString().toDouble()
+                val doubleNumber = item.totalExpenses.toString().toDouble()
                 val format: String = sdd.format(doubleNumber)
                 textPrice.text = format
             }
-            textTotal.text = item.totalPurchase.toString()
-            textDateAndTime.text = "${item.time}   ${item.date}"
+            textTotal.text = item.totalSpent.toString()
+            textDateAndTime.text = "${item.time} "
 
             button.setBackgroundResource(R.drawable.custom_button_result)
             itemView.setOnClickListener {

@@ -93,7 +93,6 @@ class DataBaseManager(
         idb.close()
     }
 
-
     fun insertPerson(person: Person) {
         val idb = this.writableDatabase
         val icv = ContentValues()
@@ -110,12 +109,10 @@ class DataBaseManager(
         val gQuery =
             "SELECT * FROM $personsInSpentTable WHERE $spentId = $i"
 
-        //SELECT * FROM SpentListOfParts WHERE spentId = 4
         val cursor: Cursor = gdb.rawQuery(gQuery, null)
 
         if (cursor.moveToFirst()) {
             do {
-
                 val person = this.getPerson(cursor.getString(1))
                 if (person != null) {
                     items.add(person)
@@ -166,18 +163,48 @@ class DataBaseManager(
         return gPrs
     }
 
+    fun getAnswers(): MutableList<Answer> {
+        val items = mutableListOf<Answer>()
+        val gdb = this.readableDatabase
+        val cursor: Cursor = gdb.query(
+            answersTable,
+            arrayOf(answerId, totalExpenses, totalSpent, time),
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        if (cursor.moveToFirst()) {
+            do {
+                val answer =
+                    Answer(
+                        cursor.getString(0).toInt(),
+                        cursor.getString(1),
+                        cursor.getString(2).toInt(),
+                        cursor.getString(3),
+                        null
+                    )
+                items.add(answer)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        items.reverse()
+        return items
+    }
 
     fun insertAnswer(answer: Answer) {
         val idb = this.writableDatabase
         val icv = ContentValues()
-        icv.put(answerId, answer.id)
         icv.put(totalExpenses, answer.totalExpenses)
         icv.put(totalSpent, answer.totalSpent)
         icv.put(time, answer.time)
         idb.insert(answersTable, null, icv)
         idb.close()
-        for (l in answer.palist!!) {
-            this.insertAnswerPerson(l)
+        if (answer.palist != null) {
+            for (l in answer.palist!!) {
+                this.insertAnswerPerson(l)
+            }
         }
     }
 
@@ -189,8 +216,10 @@ class DataBaseManager(
         icv.put(personId, answersPerson.personId)
         idb.insert(answersPersonTable, null, icv)
         idb.close()
-        for (c in answersPerson.creditlist!!) {
+        if (answersPerson.creditlist != null) {
+            for (c in answersPerson.creditlist!!) {
                 this.insertCredit(c)
+            }
         }
     }
 
@@ -237,7 +266,6 @@ class DataBaseManager(
     fun getPersons(): MutableList<Person> {
         val items = mutableListOf<Person>()
         val gdb = this.readableDatabase
-//        val gQuery = "SELECT * FROM $personsTable"
         val cursor: Cursor = gdb.query(
             personsTable,
             arrayOf(personId, personName, personMoney, personImageLink),
@@ -284,22 +312,10 @@ class DataBaseManager(
                 if (p.flag)
                     this.insertParts(Part(spent.id, p.id))
             }
-
-
         }
         Log.i("Mahdi", spent.money.toString())
     }
-/*
-     fun deletePerson(dprs: Person): Boolean {
-         val ddb = this.writableDatabase
-         val dResult = ddb.delete(
-             personsTable,
-             "$personId=?",
-             arrayOf(java.lang.String.valueOf(dprs.pID))
-         ).toLong()
-         Log.i("Mahdi", "deletePerson Method")
-         return if (dResult == 0L) false else true
-     }*/
+
 
     fun personCount(): Int {
         val gQuery = "SELECT * FROM $personsTable"
@@ -321,6 +337,5 @@ class DataBaseManager(
         gdb.execSQL(query1)
         gdb.execSQL(queryS)
         gdb.execSQL(queryS1)
-
     }
 }
