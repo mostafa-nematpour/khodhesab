@@ -242,7 +242,7 @@ class DataBaseManager(
 
         if (answer.palist != null) {
             for (l in answer.palist!!) {
-                this.insertAnswerPerson(AnswersPerson(lastId, l.personId, null))
+                this.insertAnswerPerson(AnswersPerson(lastId, l.personId, l.creditlist))
             }
         }
     }
@@ -255,17 +255,21 @@ class DataBaseManager(
         icv.put(personId, answersPerson.personId)
         idb.insert(answersPersonTable, null, icv)
         idb.close()
+        Log.d("insertCredit", "insertCredit: insertAnswerPerson")
+
         if (answersPerson.creditlist != null) {
             for (c in answersPerson.creditlist!!) {
-                this.insertCredit(c)
+
+                this.insertCredit(answersPerson.answerId,c)
             }
         }
     }
 
-    fun insertCredit(credit: Credit) {
+    fun insertCredit(answer_Id:Int,credit: Credit) {
+        Log.d("insertCredit", "insertCredit: ")
         val idb = this.writableDatabase
         val icv = ContentValues()
-        icv.put(answerId, credit.answerId)
+        icv.put(answerId, answer_Id)
         icv.put(personId, credit.personId)
         icv.put(this.credit, credit.credit)
         idb.insert(creditsTable, null, icv)

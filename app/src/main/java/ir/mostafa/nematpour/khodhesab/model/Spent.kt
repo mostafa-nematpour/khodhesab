@@ -6,12 +6,12 @@ data class Spent(
     val buyerId: Int,
     val money: Int,
     var list: MutableList<Person>?,
-    val time: String,
-    val about: String
+    val time: String = "",
+    val about: String = ""
 ) {
     override fun toString(): String {
         return "id: $id {\n      buyerId: $buyerId\n" +
                 "      money: $money\n" +
-                "      list: $list}"
+                "      Plist: \n$list\n}"
     }
 }
