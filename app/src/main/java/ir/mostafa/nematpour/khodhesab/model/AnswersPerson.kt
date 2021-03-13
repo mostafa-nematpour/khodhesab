@@ -5,4 +5,8 @@ class AnswersPerson(
     val personId: Int,
     var creditlist: MutableList<Credit>?
 ) {
+    override fun toString(): String {
+        return "\nAnswersPerson(      \nanswerId=$answerId,       \npersonId=$personId,       \ncreditlist=$creditlist)"
+    }
+
 }

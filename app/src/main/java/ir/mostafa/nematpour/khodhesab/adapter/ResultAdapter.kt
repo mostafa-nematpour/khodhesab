@@ -42,7 +42,7 @@ class ResultAdapter(private val items: List<Answer>, val callback: Callback) :
                 textPrice.text = format
             }
             textTotal.text = item.totalSpent.toString()
-            textDateAndTime.text = "${item.time} "
+            textDateAndTime.text = "${item.time +  item.palist.toString()} "
 
             button.setBackgroundResource(R.drawable.custom_button_result)
             itemView.setOnClickListener {

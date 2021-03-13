@@ -165,6 +165,7 @@ class DataBaseManager(
 
     fun getAnswers(): MutableList<Answer> {
         val items = mutableListOf<Answer>()
+
         val gdb = this.readableDatabase
         val cursor: Cursor = gdb.query(
             answersTable,
@@ -185,13 +186,44 @@ class DataBaseManager(
                         cursor.getString(3),
                         null
                     )
+
+                val answersPersons = mutableListOf<AnswersPerson>()
+                val cursor2: Cursor = gdb.query(
+                    answersPersonTable,
+                    arrayOf(answerId, personId),
+                    "$answerId = ${cursor.getString(0).toInt()}",
+                    null,
+                    null,
+                    null,
+                    null
+                )
+                if (cursor2.moveToFirst()) {
+                    do {
+                        val answersPerson =
+                            AnswersPerson(
+                                cursor2.getString(0).toInt(),
+                                cursor2.getString(1).toInt(),
+                                null
+                            )
+                        answersPersons.add(answersPerson)
+                    } while (cursor2.moveToNext())
+                }
+                cursor2.close()
+
+
+                answer.palist = answersPersons
                 items.add(answer)
+
             } while (cursor.moveToNext())
         }
         cursor.close()
+
+
+
         items.reverse()
         return items
     }
+
 
     fun insertAnswer(answer: Answer) {
         val idb = this.writableDatabase
@@ -200,10 +232,17 @@ class DataBaseManager(
         icv.put(totalSpent, answer.totalSpent)
         icv.put(time, answer.time)
         idb.insert(answersTable, null, icv)
-        idb.close()
+        val q = "SELECT last_insert_rowid() as $answerId FROM $answersTable"
+        val cursor: Cursor =
+            idb.rawQuery(q, null)
+        cursor.moveToFirst()
+
+        val lastId: Int = cursor.getInt(cursor.getColumnIndex(answerId))
+        cursor.close()
+
         if (answer.palist != null) {
             for (l in answer.palist!!) {
-                this.insertAnswerPerson(l)
+                this.insertAnswerPerson(AnswersPerson(lastId, l.personId, null))
             }
         }
     }
